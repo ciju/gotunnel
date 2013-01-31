@@ -2,6 +2,7 @@ package main
 
 import (
 	"./common"
+	"flag"
 	"fmt"
 	"math/rand"
 	"net"
@@ -25,6 +26,7 @@ func newRandString() string {
 	return string(str[:])
 }
 
+// singleClient thingi
 func newClient(addr string, ac net.Conn, singleClient bool) (string, *common.ProxyClient) {
 	fmt.Println("admin proxy: ", connStr(ac))
 
@@ -37,9 +39,6 @@ func newClient(addr string, ac net.Conn, singleClient bool) (string, *common.Pro
 	if !singleClient {
 		host = h + "." + host
 	}
-
-	// host := h + ".t.com:3333"
-	// host = "192.168.2.10:3333"
 
 	p, err := common.NewProxyClient(ac, host)
 	if err != nil {
@@ -66,21 +65,37 @@ func listenForNewClients(addr string, backproxy net.Listener, singleClient bool)
 	}
 }
 
+var (
+	hosting      = flag.String("s", "", "server host and port")
+	backproxyAdd = flag.String("p", "", "Proxy port to listen to")
+	singleClient = flag.Bool("oc", true, "if no subdomain logic is needed.")
+)
+
+func Usage() {
+	fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "\nOptions:\n")
+	flag.PrintDefaults()
+}
+
 func main() {
 	// - single on multi mode (clients can request sub or not)
 	// - port to run on (default)
 	// - host to use, for connection resolution (probably host:port combination)
 
-	if len(os.Args) != 2 {
-		fatal("usage: lctunnel server remote")
+	flag.Usage = Usage
+	flag.Parse()
+
+	if *hosting == "" || *backproxyAdd == "" {
+		flag.Usage()
+		os.Exit(1)
 	}
-	serverAddr := os.Args[1]
 
-	clientListnerAddr := "192.168.2.10:3333"
+	serverAddr := *hosting
+	clientListnerAddr := *backproxyAdd
 
-	backproxy, err := net.Listen("tcp", "127.0.0.1:8001")
+	backproxy, err := net.Listen("tcp", clientListnerAddr)
 
-	go listenForNewClients(clientListnerAddr, backproxy, true)
+	go listenForNewClients(serverAddr, backproxy, *singleClient)
 
 	server, err := net.Listen("tcp", serverAddr)
 	if server == nil {
