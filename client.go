@@ -2,6 +2,7 @@ package main
 
 import (
 	"./common"
+	"flag"
 	"fmt"
 	"net"
 	"os"
@@ -43,28 +44,50 @@ func setupCommandChannel(addr string, req, quit chan bool, conn chan string) {
 	}
 }
 
-func main() {
-	// if len(os.Args) != 3 { 
-	//         fatal("usage: netfwd local remote") 
-	// } 
-	// localAddr := os.Args[1] 
-	// remoteAddr := os.Args[2] 
+var (
+	host   = flag.String("l", "", "host ip/name and port")
+	remote = flag.String("r", "127.0.0.1:8001", "the remote gotunnel server host/ip:port")
+)
 
+func Usage() {
+	fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "\nOptions:\n")
+	flag.PrintDefaults()
+}
+
+func main() {
 	// - remote proxy address to listen to (default)
 	// - localhost server port
 	// - subdomain to request.
 
-	remoteProxy := "127.0.0.1:8001"
-	// localServer := "127.0.0.1:4001"
-	localServer := os.Args[1]
+	flag.Usage = Usage
+	flag.Parse()
+
+	if *host == "" || *remote == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	remoteProxy := *remote
+	localServer := "127.0.0.1:" + *host
 
 	lp, err := net.Dial("tcp", localServer)
 	if err != nil {
-		fatal("local server not running")
+		fmt.Fprintf(os.Stderr, `
+ Local server not running. If your server is,
+ running on some other port. Please mention it,
+ in the options.
+
+`)
+		flag.Usage()
+		os.Exit(1)
 	}
+
 	lp.Close()
 
 	req, quit, conn := make(chan bool), make(chan bool), make(chan string)
+
+	fmt.Printf("Setting Gotunnel server %s with local server on %s\n", *remote, *host)
 
 	go setupCommandChannel(remoteProxy, req, quit, conn)
 
@@ -73,7 +96,7 @@ func main() {
 	for {
 		select {
 		case <-req:
-			log("Connecting ", remoteProxy, localServer)
+			fmt.Printf("New link b/w %s and %s\n", remoteProxy, localServer)
 			rp, err := net.Dial("tcp", remoteProxy)
 			if err != nil {
 				log("problem", err)
