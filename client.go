@@ -22,6 +22,10 @@ func connectRemoteProxy(addr string, times int) (conn net.Conn, err error) {
 	return
 }
 
+// connect to server:
+// - send the requested subdomain to server.
+// - server replies back with a port to setup command channel on.
+// - it also replies with the server address that users can access the site on.
 func setupCommandChannel(addr string, req, quit chan bool, conn chan string) {
 	backproxy, err := connectRemoteProxy(addr, 3)
 	if err != nil {
@@ -44,8 +48,24 @@ func setupCommandChannel(addr string, req, quit chan bool, conn chan string) {
 	}
 }
 
+func ensureServer(addr string) {
+	lp, err := net.Dial("tcp", addr)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, `
+ Local server not running. If your server is,
+ running on some other port. Please mention it,
+ in the options.
+
+`)
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	lp.Close()
+}
+
 var (
-	host   = flag.String("l", "", "host ip/name and port")
+	port   = flag.String("p", "", "port")
 	remote = flag.String("r", "127.0.0.1:8001", "the remote gotunnel server host/ip:port")
 )
 
@@ -60,38 +80,37 @@ func main() {
 	// - localhost server port
 	// - subdomain to request.
 
+	// remote proxy to connect to. will receive the command port
+	// later
+
+	// local server to connect to. Should be running when client
+	// starts.
+
+	// the suggest subdomain (this client doesnt have to deal with
+	// it). ex server will use it to figure out the requests to
+	// route.
+
 	flag.Usage = Usage
 	flag.Parse()
 
-	if *host == "" || *remote == "" {
+	if *port == "" || *remote == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
 
 	remoteProxy := *remote
-	localServer := "127.0.0.1:" + *host
+	localServer := net.JoinHostPort("127.0.0.1", *port)
 
-	lp, err := net.Dial("tcp", localServer)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, `
- Local server not running. If your server is,
- running on some other port. Please mention it,
- in the options.
-
-`)
-		flag.Usage()
-		os.Exit(1)
-	}
-
-	lp.Close()
+	ensureServer(localServer)
 
 	req, quit, conn := make(chan bool), make(chan bool), make(chan string)
 
-	fmt.Printf("Setting Gotunnel server %s with local server on %s\n", *remote, *host)
+	fmt.Printf("Setting Gotunnel server %s with local server on %s\n", *remote, *port)
 
 	go setupCommandChannel(remoteProxy, req, quit, conn)
 
 	remoteProxy = <-conn
+	fmt.Println("remote proxy: ", remoteProxy)
 
 	for {
 		select {
