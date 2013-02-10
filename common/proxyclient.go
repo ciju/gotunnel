@@ -6,9 +6,6 @@ import (
 	"strconv"
 )
 
-// proxyclient should be able to request a subdomain. If unavailable,
-// it should be associated with a random one. Send it back so it can
-// show it to the remote operator.
 type ProxyClient struct {
 	listenServer net.Listener
 	conn         chan net.Conn
@@ -29,6 +26,18 @@ func NewProxyClient(port int) (p *ProxyClient, err error) {
 
 func (p *ProxyClient) Addr() net.Addr {
 	return p.listenServer.Addr()
+}
+
+func (p *ProxyClient) Port() string {
+	_, port, err := net.SplitHostPort(p.listenServer.Addr().String())
+	if err != nil {
+		fatal("couldn't get port for proxy client")
+	}
+	return port
+}
+
+func (p *ProxyClient) String() string {
+	return p.listenServer.Addr().String()
 }
 
 func (p *ProxyClient) accept() {

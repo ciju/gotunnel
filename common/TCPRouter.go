@@ -1,0 +1,130 @@
+package common
+
+import (
+	"fmt"
+	"io"
+	"math/rand"
+	"net"
+	"regexp"
+)
+
+const (
+	chars        = "abcdefghiklmnopqrstuvwxyz"
+	subdomainLen = 4
+)
+
+// client request for a string, if already taken, get a new one. else
+// use the one asked by client.
+func newRandString() string {
+	var str [subdomainLen]byte
+	// rand.Seed(time.Now().Unix())
+	for i := 0; i < subdomainLen; i++ {
+		rnum := rand.Intn(len(chars))
+		str[i] = chars[rnum]
+	}
+	return string(str[:])
+}
+
+// can be a Stringer interface.
+type Proxy struct {
+	id    string
+	Proxy *ProxyClient
+	Admin io.ReadWriteCloser
+}
+
+func (p *Proxy) Id() string {
+	return p.id
+}
+
+func (p *Proxy) Host(addr string) string {
+	if p.id != "" {
+		return net.JoinHostPort(p.id+"."+addr, p.Proxy.Port())
+	}
+	return net.JoinHostPort(addr, p.Proxy.Port())
+}
+func (p *Proxy) Port() string {
+	return p.Proxy.Port()
+}
+
+type TCPRouter struct {
+	pool    *PortPool
+	proxies map[string]*Proxy
+}
+
+func NewTCPRouter(cpools, cpoole int) *TCPRouter {
+	return &TCPRouter{
+		NewPortPool(cpools, cpoole),
+		make(map[string]*Proxy),
+	}
+}
+
+func IdForHost(host string) (string, bool) {
+	h, _, err := net.SplitHostPort(host)
+	if err != nil {
+		return "", false
+	}
+
+	reg, err := regexp.Compile(`^([A-Za-z]*)`)
+	if err != nil {
+		return "", false
+	}
+
+	if reg.Match([]byte(host)) {
+		log("Router: id for host", reg.FindString(h), host)
+		return reg.FindString(host), true
+	}
+	return "", false
+}
+func HostForId(id string) string {
+	return id
+}
+
+func (r *TCPRouter) setupClientCommChan(id string) *ProxyClient {
+	port, ok := r.pool.GetAvailable()
+	if !ok {
+		fatal("Coudn't get a port for client communication")
+	}
+
+	proxy, err := NewProxyClient(port)
+	if err != nil {
+		fatal("Coulnd't setup client communication channel", err)
+	}
+
+	return proxy
+}
+
+func (r *TCPRouter) Register(ac net.Conn, suggestedId string) (proxy *Proxy) {
+	// check if its suggestedId is already registered.
+	proxyClient := r.setupClientCommChan(suggestedId)
+
+	id := suggestedId
+	for _, ok := r.proxies[id]; ok; _, ok = r.proxies[id] {
+		id = newRandString()
+	}
+
+	log("Router: registering with", id)
+	r.proxies[id] = &Proxy{Proxy: proxyClient, Admin: ac, id: id}
+
+	return r.proxies[id]
+}
+
+func (r *TCPRouter) String() string {
+	return fmt.Sprintf("Router: %v", r.proxies)
+}
+
+// given a connection, figures out the subdomain and gives respective
+// proxy.
+func (r *TCPRouter) GetProxy(host string) (*Proxy, bool) {
+	id, ok := IdForHost(host)
+	if !ok {
+		log("Router: Couldn't find the subdomain for the request", host)
+		return nil, false
+	}
+
+	log("Router: for id: ", id, r.String())
+	if proxy, ok := r.proxies[id]; ok {
+		log("Router: found proxy")
+		return proxy, true
+	}
+	return nil, false
+}
