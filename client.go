@@ -6,28 +6,14 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"time"
 )
-
-func connectRemoteProxy(addr string, times int) (conn net.Conn, err error) {
-	conn, err = net.Dial("tcp", addr)
-	if err != nil {
-		if times > 0 {
-			log("CMD: couldn't connect, trying again")
-			time.Sleep(1e9)
-			return connectRemoteProxy(addr, times-1)
-		}
-		return nil, err
-	}
-	return
-}
 
 // connect to server:
 // - send the requested subdomain to server.
 // - server replies back with a port to setup command channel on.
 // - it also replies with the server address that users can access the site on.
-func setupCommandChannel(addr string, req, quit chan bool, conn chan string) {
-	backproxy, err := connectRemoteProxy(addr, 3)
+func setupCommandChannel(addr, sub string, req, quit chan bool, conn chan string) {
+	backproxy, err := net.Dial("tcp", addr)
 	if err != nil {
 		log("CMD: Couldn't connect to ", addr, "err: ", err)
 		quit <- true
@@ -35,7 +21,7 @@ func setupCommandChannel(addr string, req, quit chan bool, conn chan string) {
 	}
 	defer backproxy.Close()
 
-	common.SendSubRequest(backproxy, "")
+	common.SendSubRequest(backproxy, sub)
 
 	// the port to connect on
 	serverat, conn_to, _ := common.ReceiveProxyInfo(backproxy)
@@ -65,8 +51,9 @@ func ensureServer(addr string) {
 }
 
 var (
-	port   = flag.String("p", "", "port")
-	remote = flag.String("r", "127.0.0.1:8001", "the remote gotunnel server host/ip:port")
+	port      = flag.String("p", "", "port")
+	subdomain = flag.String("sub", "", "request subdomain to serve on")
+	remote    = flag.String("r", "127.0.0.1:8001", "the remote gotunnel server host/ip:port")
 )
 
 func Usage() {
@@ -92,10 +79,10 @@ func main() {
 
 	fmt.Printf("Setting Gotunnel server %s with local server on %s\n", *remote, *port)
 
-	go setupCommandChannel(*remote, req, quit, conn)
+	go setupCommandChannel(*remote, *subdomain, req, quit, conn)
 
 	remoteProxy := <-conn
-	fmt.Println("remote proxy: ", remoteProxy)
+	log("remote proxy: %v", remoteProxy)
 
 	for {
 		select {
@@ -125,5 +112,5 @@ func fatal(s string, a ...interface{}) {
 }
 
 func log(msg string, r ...interface{}) {
-	fmt.Println(msg, r)
+	fmt.Printf(msg+"\n", r...)
 }

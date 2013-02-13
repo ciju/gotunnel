@@ -40,6 +40,13 @@ func (p *ProxyClient) String() string {
 	return p.listenServer.Addr().String()
 }
 
+func (p *ProxyClient) Forward(c io.ReadWriteCloser) error {
+	bc := <-p.conn
+	log("Received new connection. Fowarding.. ")
+	NewRWBridge(c, bc)
+	return nil
+}
+
 func (p *ProxyClient) accept() {
 	for {
 		backconn, err := p.listenServer.Accept()
@@ -50,12 +57,4 @@ func (p *ProxyClient) accept() {
 
 		p.conn <- backconn
 	}
-}
-
-func (p *ProxyClient) Forward(c io.ReadWriteCloser) error {
-	// bc, err := p.request()
-	bc := <-p.conn
-	log("Received new connection. Fowarding.. ")
-	NewRWBridge(c, bc)
-	return nil
 }

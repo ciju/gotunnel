@@ -102,10 +102,14 @@ func (r *TCPRouter) Register(ac net.Conn, suggestedId string) (proxy *Proxy) {
 		id = newRandString()
 	}
 
-	log("Router: registering with", id)
+	log("Router: registering with (%s)", id)
 	r.proxies[id] = &Proxy{Proxy: proxyClient, Admin: ac, id: id}
 
 	return r.proxies[id]
+}
+
+func (r *TCPRouter) Deregister(id string) {
+	delete(r.proxies, id)
 }
 
 func (r *TCPRouter) String() string {

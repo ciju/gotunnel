@@ -8,23 +8,10 @@ import (
 	"os"
 )
 
-var (
-	port         = flag.String("p", "", "port")
-	externAddr   = flag.String("a", "", "the address to be used by the users")
-	backproxyAdd = flag.String("x", "", "Proxy port to listen to")
-	singleClient = flag.Bool("sc", true, "if no subdomain logic is needed.")
-)
-
-func Usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS]\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "\nOptions:\n")
-	flag.PrintDefaults()
-}
-
 func setupClient(eaddr, port string, adminc net.Conn, singleClient bool) {
 	id := common.ReceiveSubRequest(adminc)
 
-	log("Client: ", connStr(adminc), id)
+	log("Client: asked for ", connStr(adminc), id)
 
 	proxy := router.Register(adminc, id)
 
@@ -48,7 +35,20 @@ func fwdRequest(conn net.Conn) {
 	p.Proxy.Forward(hcon)
 }
 
-var router = common.NewTCPRouter(35000, 35002)
+var router = common.NewTCPRouter(35000, 36000)
+
+var (
+	port         = flag.String("p", "", "port")
+	externAddr   = flag.String("a", "", "the address to be used by the users")
+	backproxyAdd = flag.String("x", "", "Proxy port to listen to")
+	singleClient = flag.Bool("sc", true, "if no subdomain logic is needed.")
+)
+
+func Usage() {
+	fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "\nOptions:\n")
+	flag.PrintDefaults()
+}
 
 func main() {
 	flag.Usage = Usage
@@ -80,6 +80,7 @@ func main() {
 	if server == nil {
 		fatal("Request: cannot listen: %v", err)
 	}
+	log("Listening at: %s", *port)
 
 	for {
 		conn, err := server.Accept()
@@ -91,12 +92,12 @@ func main() {
 }
 
 func fatal(s string, a ...interface{}) {
-	fmt.Fprintf(os.Stderr, "netfwd: %s\n", fmt.Sprintf(s, a))
+	fmt.Fprintf(os.Stderr, "goltunnel: %s\n", fmt.Sprintf(s, a...))
 	os.Exit(2)
 }
 
 func log(msg string, r ...interface{}) {
-	fmt.Println(msg, r)
+	fmt.Println(fmt.Sprintf(msg, r...))
 }
 
 func connStr(conn net.Conn) string {

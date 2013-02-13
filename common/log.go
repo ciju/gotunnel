@@ -7,11 +7,11 @@ import (
 )
 
 func log(msg string, r ...interface{}) {
-	fmt.Println(msg, r)
+	fmt.Println(fmt.Sprintf(msg, r...))
 }
 
 func fatal(msg string, r ...interface{}) {
-	fmt.Println(msg, r)
+	fmt.Fprintf(os.Stderr, "goltunnel: %s\n", fmt.Sprintf(msg, r...))
 	os.Exit(1)
 }
 
