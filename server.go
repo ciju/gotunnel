@@ -8,17 +8,19 @@ import (
 	"os"
 )
 
-func setupClient(eaddr, port string, adminc net.Conn, singleClient bool) {
+// TODO: time and again, send a ping to the client. And disconnect if no response.
+
+func setupClient(eaddr, port string, adminc net.Conn) {
 	id := common.ReceiveSubRequest(adminc)
 
 	log("Client: asked for ", connStr(adminc), id)
 
 	proxy := router.Register(adminc, id)
 
-	clientURL, requestURL := proxy.Host(eaddr), net.JoinHostPort(eaddr, port)
-	log("Client: --- sending", requestURL, clientURL)
+	requestURL, backendURL := proxy.FrontHost(eaddr, port), proxy.BackendHost(eaddr)
+	log("Client: --- sending %v %v", requestURL, backendURL)
 
-	common.SendProxyInfo(adminc, requestURL, clientURL)
+	common.SendProxyInfo(adminc, requestURL, backendURL)
 }
 
 func fwdRequest(conn net.Conn) {
@@ -41,7 +43,6 @@ var (
 	port         = flag.String("p", "", "port")
 	externAddr   = flag.String("a", "", "the address to be used by the users")
 	backproxyAdd = flag.String("x", "", "Proxy port to listen to")
-	singleClient = flag.Bool("sc", true, "if no subdomain logic is needed.")
 )
 
 func Usage() {
@@ -59,7 +60,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	go func() { // new clients
+	// new clients
+	go func() {
 		backproxy, err := net.Listen("tcp", *backproxyAdd)
 		if err != nil {
 			fatal("Client: Coundn't start server to connect clients", err)
@@ -70,7 +72,7 @@ func main() {
 			if err != nil {
 				fatal("Client: Problem accepting new client", err)
 			}
-			go setupClient(*externAddr, *port, adminc, *singleClient)
+			go setupClient(*externAddr, *port, adminc)
 		}
 
 	}()
@@ -91,6 +93,7 @@ func main() {
 	}
 }
 
+// TODO: move these functions to a common place.
 func fatal(s string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, "goltunnel: %s\n", fmt.Sprintf(s, a...))
 	os.Exit(2)
