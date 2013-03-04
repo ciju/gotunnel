@@ -101,7 +101,7 @@ func (r *TCPRouter) Register(ac net.Conn, suggestedId string) (proxy *Proxy) {
 	proxyClient := r.setupClientCommChan(suggestedId)
 
 	id := suggestedId
-	for _, ok := r.proxies[id]; ok; _, ok = r.proxies[id] {
+	for _, ok := r.proxies[id]; ok || id == ""; _, ok = r.proxies[id] {
 		id = newRandString()
 	}
 
