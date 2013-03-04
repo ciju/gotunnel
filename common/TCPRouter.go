@@ -63,8 +63,8 @@ func NewTCPRouter(cpools, cpoole int) *TCPRouter {
 
 func IdForHost(host string) (string, bool) {
 	h, _, err := net.SplitHostPort(host)
-	if err != nil {
-		return "", false
+	if h == "" { // assumes host:port or host as parameter
+		h = host
 	}
 
 	reg, err := regexp.Compile(`^([A-Za-z]*)`)
