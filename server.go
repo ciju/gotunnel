@@ -8,7 +8,27 @@ import (
 	"os"
 )
 
-// TODO: time and again, send a ping to the client. And disconnect if no response.
+// for isAlive
+import (
+	"io"
+	"time"
+)
+
+// https://groups.google.com/d/topic/golang-nuts/e8sUeulwD3c/discussion
+func isAlive(c net.Conn) bool {
+	one := []byte{0}
+	c.SetReadDeadline(time.Now())
+	_, err := c.Read(one)
+	if err == io.EOF {
+		log("%s detected closed LAN connection", c)
+		c.Close()
+		c = nil
+		return false
+	}
+
+	c.SetReadDeadline(time.Time{})
+	return true
+}
 
 func setupClient(eaddr, port string, adminc net.Conn) {
 	id := common.ReceiveSubRequest(adminc)
@@ -21,6 +41,15 @@ func setupClient(eaddr, port string, adminc net.Conn) {
 	log("Client: --- sending %v %v", requestURL, backendURL)
 
 	common.SendProxyInfo(adminc, requestURL, backendURL)
+
+	for {
+		time.Sleep(2 * time.Second)
+		if !isAlive(adminc) {
+			router.Deregister(proxy)
+			break
+		}
+	}
+	log("Client: closing backend connection")
 }
 
 func fwdRequest(conn net.Conn) {
