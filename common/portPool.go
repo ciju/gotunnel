@@ -45,7 +45,6 @@ func (p *PortPool) SetAvailable(port int) {
 	p.Pool[port] = yes{}
 }
 func (p *PortPool) GetAvailable() (int, bool) {
-	fmt.Println(p.String())
 	for i := p.lastAllocated; i <= p.End; i++ {
 		if p.IsAvailable(i) {
 			p.SetUnavailable(i)
