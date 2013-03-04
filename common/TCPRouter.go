@@ -111,8 +111,8 @@ func (r *TCPRouter) Register(ac net.Conn, suggestedId string) (proxy *Proxy) {
 	return r.proxies[id]
 }
 
-func (r *TCPRouter) Deregister(id string) {
-	delete(r.proxies, id)
+func (r *TCPRouter) Deregister(p *Proxy) {
+	delete(r.proxies, p.id)
 }
 
 func (r *TCPRouter) String() string {
