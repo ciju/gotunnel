@@ -40,10 +40,11 @@ func (p *Proxy) BackendHost(addr string) string {
 	return net.JoinHostPort(addr, p.Proxy.Port())
 }
 func (p *Proxy) FrontHost(addr, port string) string {
-	if p.id != "" {
-		return net.JoinHostPort(p.id+"."+addr, port)
-	}
-	return net.JoinHostPort(addr, port)
+	return p.id + "." + addr // assumes id exists
+	// if p.id != "" {
+	// 	return net.JoinHostPort(p.id+"."+addr, port)
+	// }
+	// return net.JoinHostPort(addr, port)
 }
 func (p *Proxy) Port() string {
 	return p.Proxy.Port()

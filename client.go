@@ -27,7 +27,7 @@ func setupCommandChannel(addr, sub string, req, quit chan bool, conn chan string
 	serverat, conn_to, _ := common.ReceiveProxyInfo(backproxy)
 	conn <- conn_to
 
-	fmt.Println("Connect to ", serverat)
+	fmt.Println("Connect to", serverat)
 
 	for {
 		req <- common.ReceiveConnRequest(backproxy)
@@ -77,12 +77,12 @@ func main() {
 
 	req, quit, conn := make(chan bool), make(chan bool), make(chan string)
 
-	fmt.Printf("Setting Gotunnel server %s with local server on %s\n", *remote, *port)
+	fmt.Printf("Setting Gotunnel server %s with local server on %s\n\n", *remote, *port)
 
 	go setupCommandChannel(*remote, *subdomain, req, quit, conn)
 
 	remoteProxy := <-conn
-	log("remote proxy: %v", remoteProxy)
+	// log("remote proxy: %v", remoteProxy)
 
 	for {
 		select {
