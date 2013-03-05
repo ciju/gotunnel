@@ -69,9 +69,10 @@ func fwdRequest(conn net.Conn) {
 var router = common.NewTCPRouter(35000, 36000)
 
 var (
-	port         = flag.String("p", "", "port")
-	externAddr   = flag.String("a", "", "the address to be used by the users")
-	backproxyAdd = flag.String("x", "", "Proxy port to listen to")
+	port = flag.String("p", "32000", "Access the tunnel sites on this port.")
+	// apache can (and does in localtunnel.net's case) fwd the *80 traffic to the port above.
+	externAddr   = flag.String("a", "localtunnel.net", "the address to be used by the users")
+	backproxyAdd = flag.String("x", "0.0.0.0:34000", "Port for clients to connect to")
 )
 
 func Usage() {

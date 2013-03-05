@@ -53,7 +53,7 @@ func ensureServer(addr string) {
 var (
 	port      = flag.String("p", "", "port")
 	subdomain = flag.String("sub", "", "request subdomain to serve on")
-	remote    = flag.String("r", "127.0.0.1:8001", "the remote gotunnel server host/ip:port")
+	remote    = flag.String("r", "localtunnel.net:34000", "the remote gotunnel server host/ip:port")
 )
 
 func Usage() {
