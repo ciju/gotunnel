@@ -1,9 +1,9 @@
 package main
 
 import (
-	"./common"
 	l "./log"
 	proto "./protocol"
+	"./rwtunnel"
 	"flag"
 	"fmt"
 	"net"
@@ -101,7 +101,7 @@ func main() {
 				return
 			}
 
-			go common.NewRWBridge(rp, lp)
+			go rwtunnel.NewRWTunnel(rp, lp)
 		case <-quit:
 			return
 		}

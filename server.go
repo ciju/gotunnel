@@ -1,10 +1,10 @@
 package main
 
 import (
-	"./common"
 	"./httpheadreader"
 	l "./log"
 	proto "./protocol"
+	"./tcprouter"
 	"flag"
 	"fmt"
 	"net"
@@ -69,7 +69,7 @@ func fwdRequest(conn net.Conn) {
 	p.Proxy.Forward(hcon)
 }
 
-var router = common.NewTCPRouter(35000, 36000)
+var router = tcprouter.NewTCPRouter(35000, 36000)
 
 var (
 	port = flag.String("p", "32000", "Access the tunnel sites on this port.")

@@ -1,7 +1,8 @@
-package common
+package tcprouter
 
 import (
 	l "../log"
+	"../rwtunnel"
 	"io"
 	"net"
 	"strconv"
@@ -44,7 +45,7 @@ func (p *ProxyClient) String() string {
 func (p *ProxyClient) Forward(c io.ReadWriteCloser) error {
 	bc := <-p.conn
 	l.Log("Received new connection. Fowarding.. ")
-	NewRWBridge(c, bc)
+	rwtunnel.NewRWTunnel(c, bc)
 	return nil
 }
 

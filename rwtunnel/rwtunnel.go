@@ -1,4 +1,4 @@
-package common
+package rwtunnel
 
 import (
 	l "../log"
@@ -14,19 +14,19 @@ func copyFromTo(a, b io.ReadWriteCloser) {
 	io.Copy(a, b)
 }
 
-type RWBridge struct {
+type RWTunnel struct {
 	src, dst io.ReadWriteCloser
 }
 
-func (p *RWBridge) Proxy() {
+func (p *RWTunnel) Proxy() {
 	// go copypaste(p.src, p.dst, false, "f")
 	// go copypaste(p.dst, p.src, true, "b")
 	go copyFromTo(p.src, p.dst)
 	go copyFromTo(p.dst, p.src)
 }
 
-func NewRWBridge(src, dst io.ReadWriteCloser) (p *RWBridge) {
-	b := &RWBridge{src: src, dst: dst}
+func NewRWTunnel(src, dst io.ReadWriteCloser) (p *RWTunnel) {
+	b := &RWTunnel{src: src, dst: dst}
 	b.Proxy()
 	return b
 }
