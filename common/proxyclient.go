@@ -1,6 +1,7 @@
 package common
 
 import (
+	l "../log"
 	"io"
 	"net"
 	"strconv"
@@ -31,7 +32,7 @@ func (p *ProxyClient) Addr() net.Addr {
 func (p *ProxyClient) Port() string {
 	_, port, err := net.SplitHostPort(p.listenServer.Addr().String())
 	if err != nil {
-		fatal("couldn't get port for proxy client")
+		l.Fatal("couldn't get port for proxy client")
 	}
 	return port
 }
@@ -42,7 +43,7 @@ func (p *ProxyClient) String() string {
 
 func (p *ProxyClient) Forward(c io.ReadWriteCloser) error {
 	bc := <-p.conn
-	log("Received new connection. Fowarding.. ")
+	l.Log("Received new connection. Fowarding.. ")
 	NewRWBridge(c, bc)
 	return nil
 }
@@ -50,9 +51,9 @@ func (p *ProxyClient) Forward(c io.ReadWriteCloser) error {
 func (p *ProxyClient) accept() {
 	for {
 		backconn, err := p.listenServer.Accept()
-		log("New connection from backend: ", connStr(backconn))
+		l.Log("New connection from backend ")
 		if err != nil {
-			log("some problem %v", err)
+			l.Log("some problem %v", err)
 		}
 
 		p.conn <- backconn

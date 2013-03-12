@@ -1,13 +1,14 @@
 package common
 
 import (
+	l "../log"
 	"fmt"
 	"io"
 )
 
 func copyFromTo(a, b io.ReadWriteCloser) {
 	defer func() {
-		log("closing connection")
+		l.Log("closing connection")
 		a.Close()
 	}()
 	io.Copy(a, b)
@@ -69,7 +70,7 @@ func copypaste(in, out io.ReadWriteCloser, close_in bool, msg string) {
 		_, err = out.Write(buf[0:n])
 		if err != nil {
 			fmt.Println("something wrong while copying out to in ")
-			// fatal("something wrong while copying out to in", err)
+			// l.Fatal("something wrong while copying out to in", err)
 			return
 		}
 	}

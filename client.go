@@ -2,6 +2,8 @@ package main
 
 import (
 	"./common"
+	l "./log"
+	proto "./protocol"
 	"flag"
 	"fmt"
 	"net"
@@ -15,22 +17,22 @@ import (
 func setupCommandChannel(addr, sub string, req, quit chan bool, conn chan string) {
 	backproxy, err := net.Dial("tcp", addr)
 	if err != nil {
-		log("CMD: Couldn't connect to ", addr, "err: ", err)
+		l.Log("CMD: Couldn't connect to ", addr, "err: ", err)
 		quit <- true
 		return
 	}
 	defer backproxy.Close()
 
-	common.SendSubRequest(backproxy, sub)
+	proto.SendSubRequest(backproxy, sub)
 
 	// the port to connect on
-	serverat, conn_to, _ := common.ReceiveProxyInfo(backproxy)
+	serverat, conn_to, _ := proto.ReceiveProxyInfo(backproxy)
 	conn <- conn_to
 
 	fmt.Println("Connect to", serverat)
 
 	for {
-		req <- common.ReceiveConnRequest(backproxy)
+		req <- proto.ReceiveConnRequest(backproxy)
 	}
 }
 
@@ -82,7 +84,7 @@ func main() {
 	go setupCommandChannel(*remote, *subdomain, req, quit, conn)
 
 	remoteProxy := <-conn
-	// log("remote proxy: %v", remoteProxy)
+	// l.Log("remote proxy: %v", remoteProxy)
 
 	for {
 		select {
@@ -90,12 +92,12 @@ func main() {
 			fmt.Printf("New link b/w %s and %s\n", remoteProxy, localServer)
 			rp, err := net.Dial("tcp", remoteProxy)
 			if err != nil {
-				log("Coundn't connect to remote clientproxy", err)
+				l.Log("Coundn't connect to remote clientproxy", err)
 				return
 			}
 			lp, err := net.Dial("tcp", localServer)
 			if err != nil {
-				log("Couldn't connect to localserver", err)
+				l.Log("Couldn't connect to localserver", err)
 				return
 			}
 
@@ -104,13 +106,4 @@ func main() {
 			return
 		}
 	}
-}
-
-func fatal(s string, a ...interface{}) {
-	fmt.Fprintf(os.Stderr, "oops: %s\n", fmt.Sprintf(s, a))
-	os.Exit(2)
-}
-
-func log(msg string, r ...interface{}) {
-	fmt.Printf(msg+"\n", r...)
 }

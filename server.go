@@ -2,6 +2,9 @@ package main
 
 import (
 	"./common"
+	"./httpheadreader"
+	l "./log"
+	proto "./protocol"
 	"flag"
 	"fmt"
 	"net"
@@ -20,7 +23,7 @@ func isAlive(c net.Conn) bool {
 	c.SetReadDeadline(time.Now())
 	_, err := c.Read(one)
 	if err == io.EOF {
-		log("%s detected closed LAN connection", c)
+		l.Log("%s detected closed LAN connection", c)
 		c.Close()
 		c = nil
 		return false
@@ -31,16 +34,16 @@ func isAlive(c net.Conn) bool {
 }
 
 func setupClient(eaddr, port string, adminc net.Conn) {
-	id := common.ReceiveSubRequest(adminc)
+	id := proto.ReceiveSubRequest(adminc)
 
-	log("Client: asked for ", connStr(adminc), id)
+	l.Log("Client: asked for ", connStr(adminc), id)
 
 	proxy := router.Register(adminc, id)
 
 	requestURL, backendURL := proxy.FrontHost(eaddr, port), proxy.BackendHost(eaddr)
-	log("Client: --- sending %v %v", requestURL, backendURL)
+	l.Log("Client: --- sending %v %v", requestURL, backendURL)
 
-	common.SendProxyInfo(adminc, requestURL, backendURL)
+	proto.SendProxyInfo(adminc, requestURL, backendURL)
 
 	for {
 		time.Sleep(2 * time.Second)
@@ -49,20 +52,20 @@ func setupClient(eaddr, port string, adminc net.Conn) {
 			break
 		}
 	}
-	log("Client: closing backend connection")
+	l.Log("Client: closing backend connection")
 }
 
 func fwdRequest(conn net.Conn) {
 	fmt.Println("Request: ", connStr(conn))
-	hcon := common.NewHTTPConn(conn)
+	hcon := httpheadreader.NewHTTPHeadReader(conn)
 
 	p, ok := router.GetProxy(hcon.Host())
 	if !ok {
-		log("Request: coundn't find proxy for", hcon.Host())
+		l.Log("Request: coundn't find proxy for", hcon.Host())
 		return
 	}
 
-	common.SendConnRequest(p.Admin)
+	proto.SendConnRequest(p.Admin)
 	p.Proxy.Forward(hcon)
 }
 
@@ -94,13 +97,13 @@ func main() {
 	go func() {
 		backproxy, err := net.Listen("tcp", *backproxyAdd)
 		if err != nil {
-			fatal("Client: Coundn't start server to connect clients", err)
+			l.Fatal("Client: Coundn't start server to connect clients", err)
 		}
 
 		for {
 			adminc, err := backproxy.Accept()
 			if err != nil {
-				fatal("Client: Problem accepting new client", err)
+				l.Fatal("Client: Problem accepting new client", err)
 			}
 			go setupClient(*externAddr, *port, adminc)
 		}
@@ -110,27 +113,17 @@ func main() {
 	// new request
 	server, err := net.Listen("tcp", net.JoinHostPort("0.0.0.0", *port))
 	if server == nil {
-		fatal("Request: cannot listen: %v", err)
+		l.Fatal("Request: cannot listen: %v", err)
 	}
-	log("Listening at: %s", *port)
+	l.Log("Listening at: %s", *port)
 
 	for {
 		conn, err := server.Accept()
 		if err != nil {
-			fatal("Request: failed to accept new request: ", err)
+			l.Fatal("Request: failed to accept new request: ", err)
 		}
 		go fwdRequest(conn)
 	}
-}
-
-// TODO: move these functions to a common place.
-func fatal(s string, a ...interface{}) {
-	fmt.Fprintf(os.Stderr, "goltunnel: %s\n", fmt.Sprintf(s, a...))
-	os.Exit(2)
-}
-
-func log(msg string, r ...interface{}) {
-	fmt.Println(fmt.Sprintf(msg, r...))
 }
 
 func connStr(conn net.Conn) string {

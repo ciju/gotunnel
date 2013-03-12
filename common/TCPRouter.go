@@ -1,6 +1,7 @@
 package common
 
 import (
+	l "../log"
 	"fmt"
 	"io"
 	"math/rand"
@@ -74,7 +75,7 @@ func IdForHost(host string) (string, bool) {
 	}
 
 	if reg.Match([]byte(host)) {
-		log("Router: id for host", reg.FindString(h), host)
+		l.Log("Router: id for host", reg.FindString(h), host)
 		return reg.FindString(host), true
 	}
 	return "", false
@@ -86,12 +87,12 @@ func HostForId(id string) string {
 func (r *TCPRouter) setupClientCommChan(id string) *ProxyClient {
 	port, ok := r.pool.GetAvailable()
 	if !ok {
-		fatal("Coudn't get a port for client communication")
+		l.Fatal("Coudn't get a port for client communication")
 	}
 
 	proxy, err := NewProxyClient(port)
 	if err != nil {
-		fatal("Coulnd't setup client communication channel", err)
+		l.Fatal("Coulnd't setup client communication channel", err)
 	}
 
 	return proxy
@@ -106,7 +107,7 @@ func (r *TCPRouter) Register(ac net.Conn, suggestedId string) (proxy *Proxy) {
 		id = newRandString()
 	}
 
-	log("Router: registering with (%s)", id)
+	l.Log("Router: registering with (%s)", id)
 	r.proxies[id] = &Proxy{Proxy: proxyClient, Admin: ac, id: id}
 
 	return r.proxies[id]
@@ -125,13 +126,13 @@ func (r *TCPRouter) String() string {
 func (r *TCPRouter) GetProxy(host string) (*Proxy, bool) {
 	id, ok := IdForHost(host)
 	if !ok {
-		log("Router: Couldn't find the subdomain for the request", host)
+		l.Log("Router: Couldn't find the subdomain for the request", host)
 		return nil, false
 	}
 
-	log("Router: for id: ", id, r.String())
+	l.Log("Router: for id: ", id, r.String())
 	if proxy, ok := r.proxies[id]; ok {
-		log("Router: found proxy")
+		l.Log("Router: found proxy")
 		return proxy, true
 	}
 	return nil, false

@@ -1,4 +1,4 @@
-package common
+package protocol
 
 import (
 	"encoding/gob"
@@ -7,7 +7,7 @@ import (
 )
 
 // TODO: error handling
-type ProxyInfo struct {
+type proxyInfo struct {
 	ServedAt  string
 	ConnectTo string
 }
@@ -22,27 +22,27 @@ func receive(c io.ReadWriteCloser, d interface{}) {
 }
 
 func SendProxyInfo(c io.ReadWriteCloser, at, to string) {
-	send(c, &ProxyInfo{ServedAt: at, ConnectTo: to})
+	send(c, &proxyInfo{ServedAt: at, ConnectTo: to})
 }
 
 func ReceiveProxyInfo(c io.ReadWriteCloser) (at, to string, err error) {
-	var p ProxyInfo
+	var p proxyInfo
 
 	receive(c, &p)
 
 	return p.ServedAt, p.ConnectTo, nil
 }
 
-type HostRequest struct {
+type hostRequest struct {
 	Host string
 }
 
 func SendSubRequest(c io.ReadWriteCloser, h string) {
-	send(c, &HostRequest{Host: h})
+	send(c, &hostRequest{Host: h})
 }
 
 func ReceiveSubRequest(c io.ReadWriteCloser) string {
-	var h HostRequest
+	var h hostRequest
 	receive(c, &h)
 
 	return h.Host
