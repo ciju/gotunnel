@@ -14,7 +14,7 @@ at localtunnel.net.
     Connect to vxyz.localtunnel.net
 
 The server is running on ec2 small instance, so although free, might
-not be able to handle much load. You can deploy the server on your own
+not be able to handle much load. You can deploy the server on your own  
 machine (ec2 instance etc), and connect the client to it. More
 below.<link>
 
@@ -24,12 +24,13 @@ It supports **websocket**. And, more of a technical difference, works by
 forwarding connections at TCP level.
 
 ## Installation ##
-If you are on Mac OS X, just checkout the repository.
+If you are on Mac OS X, just checkout the repository. The client
+binary that comes with the repo, should work.
 
     git clone https://github.com/ciju/gotunnel
 
 If you are on some other OS, or the above didn't work. First [install
-Go](http://golang.org/doc/install). The clone the repo, and build the
+Go](http://golang.org/doc/install). Then clone the repo, and build the
 client. Ex:
 
     git clone https://github.com/ciju/gotunnel
@@ -67,3 +68,4 @@ n/w then the client might not work.
 - statistics
 - better error handling
 - make it faster
+- https?
