@@ -75,7 +75,7 @@ var router = tcprouter.NewTCPRouter(35000, 36000)
 
 var (
 	port = flag.String("p", "32000", "Access the tunnel sites on this port.")
-	// apache can (and does in localtunnel.net's case) fwd the *80 traffic to the port above.
+	// haproxy (or any other supporting WebSocket) can fwd the *80 traffic to the port above.
 	externAddr   = flag.String("a", "localtunnel.net", "the address to be used by the users")
 	backproxyAdd = flag.String("x", "0.0.0.0:34000", "Port for clients to connect to")
 )
