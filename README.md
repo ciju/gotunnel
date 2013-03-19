@@ -1,6 +1,6 @@
 # Gotunnel #
 
-### localtunnel with websocket support ###
+### localtunnel with WebSocket support ###
 
 Gotunnel makes your localhost server accessible on the net.
 
@@ -14,13 +14,13 @@ at localtunnel.net.
     Connect to vxyz.localtunnel.net
 
 The server is running on ec2 small instance, so although free, might
-not be able to handle much load. You can deploy the server on your own  
+not be able to handle much load. You can deploy the server on your own
 machine (ec2 instance etc), and connect the client to it. More
 below.<link>
 
 ### How is it different from the original [localtunnel](http://progrium.com/localtunnel/)?
 
-It supports HTTP/S and **websocket**. And, more of a technical difference, works by
+It supports HTTP/S and **WebSocket**. And, more of a technical difference, works by
 forwarding connections at TCP level.
 
 ## Installation ##
@@ -71,3 +71,6 @@ has finished, except when TCP connection ends.
 - statistics
 - better error handling
 - make it faster
+
+## LICENSE ##
+MIT
