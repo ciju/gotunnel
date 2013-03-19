@@ -79,7 +79,7 @@ func fwdRequest(conn net.Conn) {
 
 var router = tcprouter.NewTCPRouter(35000, 36000)
 var defaultMsg = `
-<html><body><style>body{background-color:lightGray;} h1{margin:0 auto;width:600px;padding:100px;text-align:center;} a{color:#4e4e4e;text-decoration:none;}</style><h1><a href="github.com/ciju/gotunnel">github.com/ciju/gotunnel</a></h1></body></html>
+<html><body><style>body{background-color:lightGray;} h1{margin:0 auto;width:600px;padding:100px;text-align:center;} a{color:#4e4e4e;text-decoration:none;}</style><h1><a href="http://github.com/ciju/gotunnel">github.com/ciju/gotunnel</a></h1></body></html>
 `
 
 var (
