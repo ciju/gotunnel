@@ -62,6 +62,8 @@ func fwdRequest(conn net.Conn) {
 	p, ok := router.GetProxy(hcon.Host())
 	if !ok {
 		l.Log("Request: coundn't find proxy for", hcon.Host())
+		conn.Write([]byte(fmt.Sprintf("Couldn't fine proxy for <%s>", hcon.Host())))
+		conn.Close()
 		return
 	}
 
