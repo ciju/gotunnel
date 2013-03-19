@@ -20,7 +20,7 @@ below.<link>
 
 ### How is it different from the original [localtunnel](http://progrium.com/localtunnel/)?
 
-It supports **websocket**. And, more of a technical difference, works by
+It supports HTTP/S and **websocket**. And, more of a technical difference, works by
 forwarding connections at TCP level.
 
 ## Installation ##
@@ -59,13 +59,15 @@ Run the server with custom options.
       -x="0.0.0.0:34000": Port for clients to connect to
 
 ## Limitations ##
+
 - If making connections to ports like 34000 are not allowed by your
 n/w then the client might not work.
-- Its slow.
+
+- Connection pooling might not be possible. Working at the TCP level,
+we loose the ability of knowing when an HTTP/S or websocket request
+has finished, except when TCP connection ends.
 
 ## TODO ##
-- connection pool (for a little faster service)
 - statistics
 - better error handling
 - make it faster
-- https?
