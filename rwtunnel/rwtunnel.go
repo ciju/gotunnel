@@ -2,7 +2,6 @@ package rwtunnel
 
 import (
 	l "../log"
-	"fmt"
 	"io"
 )
 
@@ -39,7 +38,7 @@ func copypaste(in, out io.ReadWriteCloser, close_in bool, msg string) {
 
 	defer func() {
 		if close_in {
-			fmt.Println("eof closing connection")
+			l.Log("eof closing connection")
 			in.Close()
 			out.Close()
 		}
@@ -49,15 +48,16 @@ func copypaste(in, out io.ReadWriteCloser, close_in bool, msg string) {
 		n, err := in.Read(buf[0:])
 		// on readerror, only bail if no other choice.
 		if err == io.EOF {
+			l.Log("msg: ", msg)
 			// fmt.Print(msg)
 			// time.Sleep(1e9)
-			fmt.Println("eof", msg)
+			l.Log("eof", msg)
 			return
 		}
-		fmt.Println("-- read ", msg, n)
+		l.Log("-- read ", n)
 		if err != nil {
-			fmt.Println("something wrong while copying in ot out ", msg)
-			fmt.Println("error: ", err)
+			l.Log("something wrong while copying in ot out ", msg)
+			l.Log("error: ", err)
 			return
 		}
 		// if n < 1 {
@@ -65,11 +65,11 @@ func copypaste(in, out io.ReadWriteCloser, close_in bool, msg string) {
 		// 	return
 		// }
 
-		fmt.Println("-- msg bytes", msg, string(buf[0:n]))
+		l.Log("-- wrote msg bytes", n)
 
 		_, err = out.Write(buf[0:n])
 		if err != nil {
-			fmt.Println("something wrong while copying out to in ")
+			l.Log("something wrong while copying out to in ")
 			// l.Fatal("something wrong while copying out to in", err)
 			return
 		}
