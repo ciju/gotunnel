@@ -6,14 +6,16 @@ import (
 	"bytes"
 	"net"
 	"net/http"
+	"regexp"
 )
 
 type HTTPHeadReader struct {
 	conn net.Conn
 
-	buf []byte
-	err error
-	req *http.Request
+	host string
+	buf  []byte
+	err  error
+	req  *http.Request
 }
 
 func NewHTTPHeadReader(c net.Conn) (h *HTTPHeadReader) {
@@ -40,6 +42,21 @@ func (c *HTTPHeadReader) parseHeaders() (err error) {
 	return nil
 }
 
+func (c *HTTPHeadReader) regexpHost() string {
+	// TODO: make this generic
+	reg, err := regexp.Compile(`(\w*\.localtunnel\.net)`)
+	if err != nil {
+		l.Log("H: couldn't find host")
+		return ""
+	}
+
+	if reg.Match(c.buf[0:]) {
+		l.Log("H: found host: ", reg.FindString(string(c.buf[0:])))
+		return reg.FindString(string(c.buf[0:]))
+	}
+	return ""
+}
+
 func (c *HTTPHeadReader) Host() string {
 	if c.req != nil {
 		return c.req.Host
@@ -48,7 +65,7 @@ func (c *HTTPHeadReader) Host() string {
 	err := c.parseHeaders()
 	if err != nil {
 		l.Log("H: error", err)
-		return ""
+		return c.regexpHost()
 	}
 
 	return c.req.Host
