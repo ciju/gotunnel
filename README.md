@@ -75,4 +75,4 @@ has finished, except when TCP connection ends.
 ## LICENSE ##
 MIT
 
-**Sponsored by ActiveSphere**
+**Sponsored by [ActiveSphere](http://activesphere.com)**
