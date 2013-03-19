@@ -59,6 +59,12 @@ func fwdRequest(conn net.Conn) {
 	fmt.Println("Request: ", connStr(conn))
 	hcon := httpheadreader.NewHTTPHeadReader(conn)
 
+	if hcon.Host() == *externAddr || hcon.Host() == "www."+*externAddr {
+		conn.Write([]byte(defaultMsg))
+		conn.Close()
+		return
+	}
+
 	p, ok := router.GetProxy(hcon.Host())
 	if !ok {
 		l.Log("Request: coundn't find proxy for", hcon.Host())
@@ -72,6 +78,9 @@ func fwdRequest(conn net.Conn) {
 }
 
 var router = tcprouter.NewTCPRouter(35000, 36000)
+var defaultMsg = `
+<html><body><style>body{background-color:lightGray;} h1{margin:0 auto;width:600px;padding:100px;text-align:center;} a{color:#4e4e4e;text-decoration:none;}</style><h1><a href="github.com/ciju/gotunnel">github.com/ciju/gotunnel</a></h1></body></html>
+`
 
 var (
 	port = flag.String("p", "32000", "Access the tunnel sites on this port.")
