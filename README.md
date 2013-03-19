@@ -8,7 +8,7 @@ Assuming your server is running on port 3000, on your laptop. Run
 `./client -p "3000"` (from the checkedout repository, see [installation](#installation)) and that would make it accessible on a subdomain
 at localtunnel.net.
 
-    $ ./client -p "3000"
+    $ ./client -p 3000
     Setting Gotunnel server localtunnel.net:34000 with local server on 3000
 
     Connect to vxyz.localtunnel.net

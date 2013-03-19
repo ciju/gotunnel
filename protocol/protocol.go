@@ -56,7 +56,6 @@ func ReceiveConnRequest(c io.ReadWriteCloser) bool {
 	c.Read(buf[0:])
 
 	if string(buf[0:]) == "new" {
-		fmt.Println("--- ", string(buf[0:]))
 		return true
 	}
 	return true

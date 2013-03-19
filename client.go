@@ -29,7 +29,7 @@ func setupCommandChannel(addr, sub string, req, quit chan bool, conn chan string
 	serverat, conn_to, _ := proto.ReceiveProxyInfo(backproxy)
 	conn <- conn_to
 
-	fmt.Println("Connect to", serverat)
+	fmt.Printf("Your site should be available at: \033[1;34m%s\033[0m\n", serverat)
 
 	for {
 		req <- proto.ReceiveConnRequest(backproxy)
@@ -89,7 +89,7 @@ func main() {
 	for {
 		select {
 		case <-req:
-			fmt.Printf("New link b/w %s and %s\n", remoteProxy, localServer)
+			// fmt.Printf("New link b/w %s and %s\n", remoteProxy, localServer)
 			rp, err := net.Dial("tcp", remoteProxy)
 			if err != nil {
 				l.Log("Coundn't connect to remote clientproxy", err)

@@ -7,7 +7,6 @@ import (
 
 func copyFromTo(a, b io.ReadWriteCloser) {
 	defer func() {
-		l.Log("closing connection")
 		a.Close()
 	}()
 	io.Copy(a, b)
