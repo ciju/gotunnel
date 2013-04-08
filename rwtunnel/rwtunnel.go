@@ -1,7 +1,7 @@
 package rwtunnel
 
 import (
-	l "../log"
+	l "github.com/ciju/gotunnel/log"
 	"io"
 )
 

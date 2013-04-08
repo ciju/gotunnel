@@ -7,9 +7,9 @@ import (
 )
 
 import (
-	l "../log"
-	proto "../protocol"
-	"../rwtunnel"
+	l "github.com/ciju/gotunnel/log"
+	proto "github.com/ciju/gotunnel/protocol"
+	"github.com/ciju/gotunnel/rwtunnel"
 )
 
 func ensureServer(addr string) bool {

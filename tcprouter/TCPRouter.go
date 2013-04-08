@@ -1,8 +1,8 @@
 package tcprouter
 
 import (
-	l "../log"
 	"fmt"
+	l "github.com/ciju/gotunnel/log"
 	"io"
 	"math/rand"
 	"net"
@@ -11,7 +11,7 @@ import (
 
 const (
 	chars        = "abcdefghiklmnopqrstuvwxyz"
-	subdomainLen = 4
+	subdomainLen = 1
 )
 
 // client request for a string, if already taken, get a new one. else
@@ -80,9 +80,10 @@ func IdForHost(host string) (string, bool) {
 	}
 	return "", false
 }
-func HostForId(id string) string {
-	return id
-}
+
+// func HostForId(id string) string {
+// 	return id
+// }
 
 func (r *TCPRouter) setupClientCommChan(id string) *ProxyClient {
 	port, ok := r.pool.GetAvailable()

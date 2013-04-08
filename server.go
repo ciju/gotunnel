@@ -8,10 +8,10 @@ import (
 )
 
 import (
-	"./httpheadreader"
-	l "./log"
-	proto "./protocol"
-	"./tcprouter"
+	"github.com/ciju/gotunnel/httpheadreader"
+	l "github.com/ciju/gotunnel/log"
+	proto "github.com/ciju/gotunnel/protocol"
+	"github.com/ciju/gotunnel/tcprouter"
 )
 
 // for isAlive

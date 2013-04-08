@@ -1,9 +1,9 @@
 package httpheadreader
 
 import (
-	l "../log"
 	"bufio"
 	"bytes"
+	l "github.com/ciju/gotunnel/log"
 	"net"
 	"net/http"
 	"regexp"
