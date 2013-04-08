@@ -13,3 +13,7 @@ func Fatal(s string, a ...interface{}) {
 func Log(msg string, r ...interface{}) {
 	fmt.Println(fmt.Sprintf(msg, r...))
 }
+
+func Info(msg string, r ...interface{}) {
+	fmt.Printf("\033[1;34m%s\033[0m\n", fmt.Sprintf(msg, r...))
+}
