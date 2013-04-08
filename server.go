@@ -1,14 +1,17 @@
 package main
 
 import (
-	"./httpheadreader"
-	l "./log"
-	proto "./protocol"
-	"./tcprouter"
 	"flag"
 	"fmt"
 	"net"
 	"os"
+)
+
+import (
+	"./httpheadreader"
+	l "./log"
+	proto "./protocol"
+	"./tcprouter"
 )
 
 // for isAlive
@@ -56,14 +59,19 @@ func setupClient(eaddr, port string, adminc net.Conn) {
 }
 
 func fwdRequest(conn net.Conn) {
-	fmt.Println("Request: ", connStr(conn))
+	l.Log("Request: ", connStr(conn))
 	hcon := httpheadreader.NewHTTPHeadReader(conn)
+
+	l.Log("Request: host:", hcon.Host())
 
 	if hcon.Host() == *externAddr || hcon.Host() == "www."+*externAddr {
 		conn.Write([]byte(defaultMsg))
 		conn.Close()
 		return
 	}
+
+	// if host is '.m.'+*externAddr then fwd it to a redis server
+	// or something.
 
 	p, ok := router.GetProxy(hcon.Host())
 	if !ok {
@@ -79,7 +87,7 @@ func fwdRequest(conn net.Conn) {
 
 var router = tcprouter.NewTCPRouter(35000, 36000)
 var defaultMsg = `
-<html><body><style>body{background-color:lightGray;} h1{margin:0 auto;width:600px;padding:100px;text-align:center;} a{color:#4e4e4e;text-decoration:none;} h3{float:right;}</style><h1><a href="http://github.com/ciju/gotunnel">github.com/ciju/gotunnel</a></h1><h3>Sponsored by <a href="http://activesphere.com">ActiveSphere</a></h3></body></html>
+<html><body><style>body{background-color:lightGray;} h1{margin:0 auto;width:600px;padding:100px;text-align:center;} a{color:#4e4e4e;text-decoration:none;} h3{float:right;margin-right:100px}</style><h1><a href="http://github.com/ciju/gotunnel">github.com/ciju/gotunnel</a></h1><h3>Sponsored by <a href="http://activesphere.com">ActiveSphere</a></h3></body></html>
 `
 
 var (
