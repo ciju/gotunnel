@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"time"
 )
 
 import (
@@ -28,6 +29,20 @@ func ensureServer(addr string) bool {
 	return true
 }
 
+func setupHeartbeat(c net.Conn) {
+
+	for {
+		time.Sleep(1 * time.Second)
+		c.SetWriteDeadline(time.Now().Add(3 * time.Second))
+
+		_, err := c.Write([]byte("ping"))
+		if err != nil {
+			l.Log("Couldn't connect to server. Check your network connection, and run client again.")
+			os.Exit(1)
+		}
+	}
+}
+
 // connect to server:
 // - send the requested subdomain to server.
 // - server replies back with a port to setup command channel on.
@@ -48,6 +63,8 @@ func setupCommandChannel(addr, sub string, req, quit chan bool, conn, servInfo c
 	conn <- conn_to
 	servInfo <- serverat
 
+	go setupHeartbeat(backproxy)
+
 	for {
 		req <- proto.ReceiveConnRequest(backproxy)
 	}
@@ -62,7 +79,7 @@ func SetupClient(port, remote, subdomain string, servInfo chan string) bool {
 
 	req, quit, conn := make(chan bool), make(chan bool), make(chan string)
 
-	fmt.Printf("Setting Gotunnel server %s with local server on %s\n\n", remote, port)
+	// fmt.Printf("Setting Gotunnel server %s with local server on %s\n\n", remote, port)
 
 	go setupCommandChannel(remote, subdomain, req, quit, conn, servInfo)
 

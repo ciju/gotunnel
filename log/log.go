@@ -3,15 +3,16 @@ package log
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 func Fatal(s string, a ...interface{}) {
-	fmt.Fprintf(os.Stderr, "goltunnel: %s\n", fmt.Sprintf(s, a...))
+	fmt.Fprintf(os.Stderr, "%v goltunnel: %s\n", time.Now(), fmt.Sprintf(s, a...))
 	os.Exit(2)
 }
 
 func Log(msg string, r ...interface{}) {
-	fmt.Println(fmt.Sprintf(msg, r...))
+	fmt.Printf("%v - %s\n", time.Now(), fmt.Sprintf(msg, r...))
 }
 
 func Info(msg string, r ...interface{}) {
