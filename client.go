@@ -7,8 +7,8 @@ import (
 )
 
 import (
-	"./gtclient"
-	l "./log"
+	"github.com/ciju/gotunnel/gtclient"
+	l "github.com/ciju/gotunnel/log"
 	"github.com/ciju/vercheck"
 )
 

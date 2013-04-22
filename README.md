@@ -34,6 +34,7 @@ Go](http://golang.org/doc/install). Then clone the repo, and build the
 client. Ex:
 
     git clone https://github.com/ciju/gotunnel
+    go get
     go build client.go
 
 ## Client Options ##
@@ -48,6 +49,7 @@ client. Ex:
 ## Running your own server ##
 Install golang, and compile the server with command.
 
+    go get
     go build server.go
 
 Run the server with custom options.
