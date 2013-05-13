@@ -1,27 +1,26 @@
-# Gotunnel #
+# Gotunnel - server your local server/directory over the internet #
 
-### localtunnel with WebSocket support ###
-
-Gotunnel makes your localhost server accessible on the net.
+Gotunnel makes your localhost server or directory accessible on the
+net. It supports HTTP/S and **WebSocket**.
 
 Assuming your server is running on port 3000, on your laptop. Run
-`./client -p "3000"` (from the checkedout repository, see [installation](#installation)) and that would make it accessible on a subdomain
+`./gotunnel -p "3000"` (from the checkedout repository, see [installation](#installation)) and that would make it accessible on a subdomain
 at localtunnel.net.
 
-    $ ./client -p 3000
+    $ ./gotunnel -p 3000
     Setting Gotunnel server localtunnel.net:34000 with local server on 3000
 
     Connect to vxyz.localtunnel.net
 
+If you would like to serve a directory on the internet (think
+`python -m SimpleHTTPServer 8000` over the internet), then run:
+
+    $ ./gotunnel -fs -p <some port> -d <path to dir>
+
 The server is running on ec2 small instance, so although free, might
 not be able to handle much load. You can deploy the server on your own
-machine (ec2 instance etc), and connect the client to it. More
-below.<link>
-
-### How is it different from the original [localtunnel](http://progrium.com/localtunnel/)?
-
-It supports HTTP/S and **WebSocket**. And, more of a technical difference, works by
-forwarding connections at TCP level.
+machine (ec2 instance etc), and connect the client to it. [More
+below](#running-your-own-server).
 
 ## Installation ##
 If you are on Mac OS X, just checkout the repository. The client
@@ -35,15 +34,18 @@ client. Ex:
 
     git clone https://github.com/ciju/gotunnel
     go get
-    go build client.go
+    make
 
 ## Client Options ##
-    $ ./client
-    Usage: ./client [OPTIONS]
+    $ ./gotunnel
+    Usage: ./gotunnel [OPTIONS]
 
     Options:
+      -d="": The directory to serve. To be used with -fs.
+      -fs=false: Server files in the current directory. Use -p to specify the port.
       -p="": port
       -r="localtunnel.net:34000": the remote gotunnel server host/ip:port
+      -sc=false: Skip version check
       -sub="": request subdomain to serve on
 
 ## Running your own server ##
