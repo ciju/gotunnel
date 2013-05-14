@@ -14,6 +14,8 @@ import (
 	"github.com/ciju/vercheck"
 )
 
+var version string
+
 var (
 	port         = flag.String("p", "", "port")
 	subdomain    = flag.String("sub", "", "request subdomain to serve on")
@@ -21,6 +23,7 @@ var (
 	skipVerCheck = flag.Bool("sc", false, "Skip version check")
 	fileServer   = flag.Bool("fs", false, "Server files in the current directory. Use -p to specify the port.")
 	serveDir     = flag.String("d", "", "The directory to serve. To be used with -fs.")
+	showVersion  = flag.Bool("v", false, "Show version and exit")
 )
 
 // var version string
@@ -35,6 +38,11 @@ func main() {
 	flag.Usage = Usage
 	flag.Parse()
 
+	if *showVersion {
+		fmt.Println("Version - ", version)
+		return
+	}
+
 	if *port == "" || *remote == "" {
 		flag.Usage()
 		os.Exit(1)
@@ -43,8 +51,7 @@ func main() {
 	if !*skipVerCheck {
 		if vercheck.HasMinorUpdate(
 			"https://raw.github.com/ciju/gotunnel/master/VERSION",
-			"./VERSION",
-			// version,
+			version,
 		) {
 			l.Info("\nNew version of Gotunnel is available. Please update your code and run again. Or start with option -sc to continue with this version.\n")
 			os.Exit(0)
