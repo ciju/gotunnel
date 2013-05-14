@@ -21,19 +21,34 @@ import (
 )
 
 // https://groups.google.com/d/topic/golang-nuts/e8sUeulwD3c/discussion
-func isAlive(c net.Conn) bool {
-	one := []byte{0}
-	c.SetReadDeadline(time.Now())
-	_, err := c.Read(one)
+func isAlive(c net.Conn) (ret bool) {
+	ret = false
+
+	defer func() {
+		if r := recover(); r != nil {
+			l.Log("isAlive: Recovering from f", r)
+			ret = false
+		}
+	}()
+
+	one := make([]byte, 10)
+	c.SetReadDeadline(time.Now().Add(10 * time.Second))
+	n, err := c.Read(one)
+	// l.Log("isAlive: read %v - %v", len(one), string(one))
 	if err == io.EOF {
-		l.Log("%s detected closed LAN connection", c)
+		l.Log("isAlive: %s detected closed LAN connection", c)
 		c.Close()
 		c = nil
-		return false
+		return
+	}
+	if n == 0 {
+		l.Log("isAlive: read 0 bytes. Probably client out of reach")
+		return
 	}
 
 	c.SetReadDeadline(time.Time{})
-	return true
+	ret = true
+	return
 }
 
 func setupClient(eaddr, port string, adminc net.Conn) {
