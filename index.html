@@ -16,32 +16,101 @@
     <div class="wrapper">
       <header>
         <h1>Gotunnel</h1>
-        <p>Share you localhost server or directory over the internet. supports HTTP/S and websocket. </p>
-
+        <p>Share you localhost server or directory over the internet. Supports HTTP/S and websocket. </p>
         <p class="view"><a href="https://github.com/ciju/gotunnel">View the Project on GitHub <small>ciju/gotunnel</small></a></p>
 
-
         <ul>
+          <li>
+            <a href="https://github.com/ciju/gotunnel/raw/binaries/gotunnel">
+              Download <strong>OS X Binary</strong>
+            </a>
+          </li>
           <li><a href="https://github.com/ciju/gotunnel/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/ciju/gotunnel/tarball/master">Download <strong>TAR Ball</strong></a></li>
           <li><a href="https://github.com/ciju/gotunnel">View On <strong>GitHub</strong></a></li>
         </ul>
       </header>
       <section>
         <h3>What can it do?</h3>
 
-<h4>localhost server over internet.</h4>
+        <ul>
+          <li>
+            <h4>Localhost server over internet.</h4>
 
-<p>Make a local server accessible over the internet. With HTTP/S and WebSocket support, your user/client can interact with the localhost site, as if its hosted on cloud. </p>
+            <p>Make a local server accessible over the internet. With
+              HTTP/S and WebSocket support, your user/client can
+              interact with the localhost site, as if its hosted on
+              cloud.</p>
 
-<h4>Local directory shared over internet.</h4>
+            <p>Example, lets say the localhost server is running on
+            port 3000. To make it accessible over the net, you would
+            run.</p>
 
-<p>If you just want to share a directory with others, you just have to start Gotunnel with a few command line options (no need to run another server).</p>
+            <pre>
+$ ./gotunnel -p 3000
+Your site should be available at: abcd.localtunnel.net </pre>
 
-<h3>Limitations</h3>
+            <p>Your local site should now be accessible at <code>abcd.localtunnel.net</code></p>
+            
+          </li>
 
-<p>You have to be online, and running the server and Gotunnel, for the site to be accessible :)
-Speed. Its going to be slower than a hosted system.</p>
+          <li>
+            <h4>Share local directory over internet.</h4>
+
+            <p>If you just want to share a directory with others, you
+            just have to start Gotunnel with a few command line
+            options (no need to run another server).</p>
+
+            <p>To share the current directory, you would run</p>
+
+            <pre>
+$ ./gotunnel -fs -p &lt;port>
+Serving &lt;your directory path> at port &lt;port>
+Your site should be available at: abcd.localtunnel.net</pre>
+
+            <p>The port is some arbitrary free port, where the
+            directory server would run.</p>
+          </li>
+        </ul>
+
+        <h3>Installation</h3>
+        <h4>OS X</h4>
+        <p>
+          Download the
+          <a href="https://github.com/ciju/gotunnel/raw/binaries/gotunnel">
+          binary. </a>
+        </p>
+        <p>Make it executable. For added convenience, you could add
+        its diretory in <code>$PATH</code>. Ex:</p>
+        <pre>
+$ chmod u+x gotunnel
+$ mv gotunnel /usr/local/bin</pre>
+
+        <h4>Others</h4>
+        <p>Download the project (as a <a
+        href="https://github.com/ciju/gotunnel/zipball/master">zip</a>/<a href="https://github.com/ciju/gotunnel/tarball/master">tar</a>)
+        or <a href="https://github.com/ciju/gotunnel">clone the
+        repo</a>. And then compile with <a href="http://golang.org">golang</a>, as follows.</p>
+
+        <ul>
+          <li>First make sure <a href="http://golang.org">golang</a>
+          is installed.</li>
+          <li>then run the following in the extracted directory.
+          <pre>$ go get
+$ make </pre>
+You should now have a binary in the <code>./bin</code> directory. Make
+it executable. And add it to the <code>$PATH</code>
+          </li>
+
+        </ul>
+
+        <h3>Limitations</h3>
+
+        <ul>
+          <li>You have to be online, and running the server and
+          Gotunnel, for the site to be accessible :)</li>
+
+          <li>Speed. Its going to be slower than a hosted system.</li>
+        </ul>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/ciju">ciju</a></p>
