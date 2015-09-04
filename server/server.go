@@ -77,7 +77,7 @@ func fwdRequest(conn net.Conn) {
 	l.Log("Request: ", connStr(conn))
 	hcon := httpheadreader.NewHTTPHeadReader(conn)
 
-	l.Log("Request: host:", hcon.Host())
+	l.Log("Request: host: %s %s", *externAddr, hcon.Host())
 
 	if hcon.Host() == *externAddr || hcon.Host() == "www."+*externAddr {
 		conn.Write([]byte(defaultMsg))

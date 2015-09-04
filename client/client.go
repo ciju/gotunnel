@@ -19,7 +19,7 @@ var version string
 var (
 	port         = flag.String("p", "", "port")
 	subdomain    = flag.String("sub", "", "request subdomain to serve on")
-	remote       = flag.String("r", "localtunnel.net:34000", "the remote gotunnel server host/ip:port")
+	remote       = flag.String("r", "gotunnel.in:34000", "the remote gotunnel server host/ip:port")
 	skipVerCheck = flag.Bool("sc", false, "Skip version check")
 	fileServer   = flag.Bool("fs", false, "Server files in the current directory. Use -p to specify the port.")
 	serveDir     = flag.String("d", "", "The directory to serve. To be used with -fs.")
